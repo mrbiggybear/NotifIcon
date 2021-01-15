@@ -38,10 +38,11 @@ namespace bb_SysTray
             var _lamp_state = (int) getDeviceState();
             if (_lamp_state == 3)
             {
+                Console.WriteLine("Remote device is offline...");
                 lamp.isAvailable = false;
                 lamp.state = false;
             }else{
-            lamp.state = _lamp_state == 1;
+                lamp.state = _lamp_state == 1;
             }
         }
 
@@ -51,18 +52,28 @@ namespace bb_SysTray
             Off=0,
             Unknown=-1
         }
+
         public Status getDeviceState()
         {
             String url = @"http://192.168.86.236/status";
 
-            var response = hitEndpoint(url);
+            var response = HitEndpoint(url);
 
-            if(response == "true")
+            if (response == "true")
+            {
+                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
                 return Status.On;
+            }
+
             if (response == "false")
+            {
+                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
                 return Status.Off;
+            }
+
             return Status.Unknown;
         }
+
         public void setDeviceState(bool state)
         {
             string html = string.Empty;
@@ -73,25 +84,36 @@ namespace bb_SysTray
             };
             string url = urls[0] + (lamp.state ? "/on" : "/off");
 
-            var response = hitEndpoint(url);
+            var response = HitEndpoint(url);
 
-            Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
-
-
+            if(response.Length > 1){}
+                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
         }
 
-        private String hitEndpoint(string url)
+        private String HitEndpoint(string url)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "GET";
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+                request.Method = "GET";
 
-            var webResponse = request.GetResponse();
-            var webStream = webResponse.GetResponseStream();
-            var responseReader = new StreamReader(webStream);
-            var response = responseReader.ReadToEnd();
-            
-            responseReader.Close();
-            return response;
+                var webResponse = request.GetResponse();
+                var webStream = webResponse.GetResponseStream();
+                var responseReader = new StreamReader(webStream);
+                var response = responseReader.ReadToEnd();
+
+                responseReader.Close();
+                return response;
+            }
+            catch (System.Net.WebException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Something went wrong here.");
+            }
+            return "";
         }
 
         public void Display()
