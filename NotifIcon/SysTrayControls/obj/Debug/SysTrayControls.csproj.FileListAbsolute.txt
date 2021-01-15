@@ -1,9 +1,0 @@
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\bin\Debug\SysTrayControls.exe.config
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\bin\Debug\SysTrayControls.exe
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\bin\Debug\SysTrayControls.pdb
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.csprojAssemblyReference.cache
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.Properties.Resources.resources
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.csproj.GenerateResource.cache
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.csproj.CoreCompileInputs.cache
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.exe
-C:\Users\Mr.BiggyBear\source\repos\InANutshell_8\SysTrayControls\obj\Debug\SysTrayControls.pdb
