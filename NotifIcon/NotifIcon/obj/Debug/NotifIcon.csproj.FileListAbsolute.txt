@@ -2,3 +2,8 @@ C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\Notif
 C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.Properties.Resources.resources
 C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.csproj.GenerateResource.cache
 C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.csproj.CoreCompileInputs.cache
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\bin\Debug\NotifIcon.exe.config
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\bin\Debug\NotifIcon.exe
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\bin\Debug\NotifIcon.pdb
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.exe
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.pdb

@@ -13,6 +13,7 @@ namespace bb_SysTray
 {
     public class Lamp
     {
+        public bool isAvailable { get; set; }
         public bool state { get; set; }
 
         public bool Toggle()
@@ -34,8 +35,34 @@ namespace bb_SysTray
             ico.ContextMenu = new _ContextMenu();
             lamp = new Lamp();
 
+            var _lamp_state = (int) getDeviceState();
+            if (_lamp_state == 3)
+            {
+                lamp.isAvailable = false;
+                lamp.state = false;
+            }else{
+            lamp.state = _lamp_state == 1;
+            }
         }
 
+        public enum Status
+        {
+            On=1,
+            Off=0,
+            Unknown=-1
+        }
+        public Status getDeviceState()
+        {
+            String url = @"http://192.168.86.236/status";
+
+            var response = hitEndpoint(url);
+
+            if(response == "true")
+                return Status.On;
+            if (response == "false")
+                return Status.Off;
+            return Status.Unknown;
+        }
         public void setDeviceState(bool state)
         {
             string html = string.Empty;
@@ -46,18 +73,25 @@ namespace bb_SysTray
             };
             string url = urls[0] + (lamp.state ? "/on" : "/off");
 
-            // const string url = "http://api.geonames.org/weatherJSON?north=44.1&south=-9.9&east=-22.4&west=55.2&username=demo";
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+            var response = hitEndpoint(url);
+
+            Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
+
+
+        }
+
+        private String hitEndpoint(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "GET";
 
             var webResponse = request.GetResponse();
             var webStream = webResponse.GetResponseStream();
             var responseReader = new StreamReader(webStream);
             var response = responseReader.ReadToEnd();
-            Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
-
+            
             responseReader.Close();
-
+            return response;
         }
 
         public void Display()
