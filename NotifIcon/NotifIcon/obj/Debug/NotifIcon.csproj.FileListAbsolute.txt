@@ -1,0 +1,4 @@
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.csprojAssemblyReference.cache
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.Properties.Resources.resources
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.csproj.GenerateResource.cache
+C:\Users\Mr.BiggyBear\source\repos\NotifIcon\NotifIcon\NotifIcon\obj\Debug\NotifIcon.csproj.CoreCompileInputs.cache
