@@ -21,7 +21,7 @@ namespace SysTrayControls
             // Show the system tray icon.
             using (SysTrayIcon sti = new SysTrayIcon())
             {
-                sti.Display();
+                sti.UpdateDisplay();
 
                 // Make sure the application runs!
                 Application.Run();

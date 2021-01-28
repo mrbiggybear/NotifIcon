@@ -28,34 +28,16 @@ namespace bb_SysTray
     {
         private NotifyIcon ico { get; }
         public static Lamp lamp { get; set; }
-
-        public SysTrayIcon()
-        {
-            ico = new NotifyIcon();
-            ico.ContextMenu = new _ContextMenu();
-            lamp = new Lamp();
-
-            var _lamp_state = (int) getDeviceState();
-            if (_lamp_state == 3)
-            {
-                Console.WriteLine("Remote device is offline...");
-                lamp.isAvailable = false;
-                lamp.state = false;
-            }else{
-                lamp.state = _lamp_state == 1;
-            }
-        }
-
         public enum Status
         {
-            On=1,
-            Off=0,
-            Unknown=-1
+            On = 1,
+            Off = 0,
+            Unknown = -1
         }
-
+        // networking communication
         public Status getDeviceState()
         {
-            String url = @"http://192.168.86.236/status";
+            String url = @"http://192.168.86.222:8888";
 
             var response = HitEndpoint(url);
 
@@ -79,22 +61,25 @@ namespace bb_SysTray
             string html = string.Empty;
             List<string> urls = new List<string>
             {
-                @"http://192.168.86.236", // direct to iot device
+                @"http://192.168.86.222:8888", // direct to iot device
                 @"http://192.168.86.21:3000/dev" // server endpoint to iot device
             };
             string url = urls[0] + (lamp.state ? "/on" : "/off");
 
             var response = HitEndpoint(url);
 
-            if(response.Length > 1){}
-                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
+            if (response.Length > 1)
+            {
+            }
+
+            Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
         }
 
         private String HitEndpoint(string url)
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
 
                 var webResponse = request.GetResponse();
@@ -113,44 +98,147 @@ namespace bb_SysTray
             {
                 Console.WriteLine("Something went wrong here.");
             }
+
             return "";
         }
 
-        public void Display()
+        public SysTrayIcon()
         {
-            ico.Icon = setIcon();
-            ico.MouseClick += new MouseEventHandler(ico_MouseClick);
-            ico.Text = "System tray utility to toggle office lamp state.";
-            ico.Visible = true;
+            lamp = new Lamp();
+            var _lamp_state = (int) (getDeviceState());
+            if (_lamp_state == -1)
+            {
+                Console.WriteLine("Remote device is offline...");
+                lamp.isAvailable = false;
+                lamp.state = false;
+            }
+            else
+            {
+                lamp.state = _lamp_state == 1;
+                lamp.isAvailable = true;
+            }
 
-            // Attach a context menu.
-            ico.ContextMenuStrip =
-                new _ContextMenu().Create(); // ToDo: look into using resources to store global values.
+
+            ico = new NotifyIcon();
+            setIcon();
+            ico.ContextMenuStrip = CreateContext();
         }
 
-        private void ico_MouseClick(object sender, MouseEventArgs mouse)
+        
+        private void ToggleState()
         {
-            if (mouse.Button == MouseButtons.Right)
-            {
-                ico.ContextMenuStrip.Show();
-            }
-            else if (mouse.Button == MouseButtons.Left)
-            {
-                lamp.Toggle();
-            }
 
             setDeviceState(lamp.state);
             ico.Icon = setIcon();
         }
 
+        // set icon
         private Icon setIcon()
         {
             var icon = lamp.state
                 ? "C:\\Users\\Mr.BiggyBear\\source\\repos\\InANutshell_8\\SysTrayControls\\Resources\\lamp_on.ico"
                 : "C:\\Users\\Mr.BiggyBear\\source\\repos\\InANutshell_8\\SysTrayControls\\Resources\\lamp_off.ico";
 
-            return  new Icon(icon);
+            return new Icon(icon);
         }
+        // create context menu
+        public ContextMenuStrip CreateContext()
+        {
+            // Add the default menu options.
+            ContextMenuStrip menu = new ContextMenuStrip();
+            ToolStripMenuItem item;
+            ToolStripSeparator sep;
+
+            // toggle
+            item = new ToolStripMenuItem();
+            item.Text = "Toggle";
+            item.Click += new EventHandler(ToggleState);
+            item.Image = lamp.state ? Resources.lamp_on : Resources.lamp_off;
+            menu.Items.Add(item);
+
+            // About.
+            item = new ToolStripMenuItem();
+            item.Text = "About";
+            item.Click += new EventHandler(AboutClick);
+            //item.Image = Resources.About;
+            menu.Items.Add(item);
+
+            // Separator.
+            sep = new ToolStripSeparator();
+            menu.Items.Add(sep);
+
+            // Exit.
+            item = new ToolStripMenuItem();
+            item.Text = "Exit";
+            item.Click += new System.EventHandler(ExitClick);
+            //item.Image = Resources.Exit;
+            menu.Items.Add(item);
+
+            return menu;
+        }
+
+        private void ToggleState(object sender, EventArgs e)
+        {
+            ToggleState();
+        }
+
+        // icon actions
+        private void IconRightclick(object sender, MouseEventArgs mouse)
+        {
+            var position = new Point(System.Windows.Forms.Control.MousePosition.X,
+                System.Windows.Forms.Control.MousePosition.X);
+
+            if (mouse.Button == MouseButtons.Right &&
+                !ico.ContextMenuStrip.Visible)
+            {
+
+                // new Point(20, 20) + mouse.Location;
+                ico.ContextMenuStrip.Show(position);
+            }
+            else
+            {
+                ico.ContextMenuStrip.Hide();
+            }
+        }
+
+        private void IconDoubleClick(object sender, MouseEventArgs mouse)
+        {
+            if (mouse.Button == MouseButtons.Left)
+            {
+                ToggleState();
+            }
+        }
+        // context actions
+        private void AboutClick(object sender, EventArgs mouse)
+        {
+
+            MessageBox.Show(
+                "Welcome!",
+                "About",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
+
+        }
+
+        private void ExitClick(object sender, EventArgs mouse)
+        {
+            // Quit without further ado.
+            Application.Exit();
+        }
+        // update
+        public void UpdateDisplay()
+        {
+            ico.Icon = setIcon();
+            ico.MouseClick += new MouseEventHandler(IconRightclick);
+            ico.MouseDoubleClick += new MouseEventHandler(IconDoubleClick);
+            ico.Text = "System tray utility to toggle office lamp state.";
+            ico.Visible = true;
+
+            // Attach a context menu.
+//            ico.ContextMenuStrip = CreateContext(); // ToDo: look into using resources to store global values.
+        }
+        // clean-up
         private void ReleaseUnmanagedResources()
         {
             // TODO release unmanaged resources here
@@ -175,68 +263,5 @@ namespace bb_SysTray
             Dispose(false);
         }
 
-        public class _ContextMenu : ContextMenu
-        {
-            private bool isAboutOpen = false;
-
-            public _ContextMenu()
-            {
-            }
-
-            public ContextMenuStrip Create()
-            {
-                // Add the default menu options.
-                ContextMenuStrip menu = new ContextMenuStrip();
-                ToolStripMenuItem item;
-                ToolStripSeparator sep;
-
-                // Windows Explorer.
-                item = new ToolStripMenuItem();
-                item.Text = "Toggle";
-                item.Click += new EventHandler(ToggleClick);
-                item.Image = lamp.state ? Resources.lamp_on : Resources.lamp_off;
-                menu.Items.Add(item);
-
-                // About.
-                item = new ToolStripMenuItem();
-                item.Text = "About";
-                item.Click += new EventHandler(AboutClick);
-                //item.Image = Resources.About;
-                menu.Items.Add(item);
-
-                // Separator.
-                sep = new ToolStripSeparator();
-                menu.Items.Add(sep);
-
-                // Exit.
-                item = new ToolStripMenuItem();
-                item.Text = "Exit";
-                item.Click += new System.EventHandler(ExitClick);
-                //item.Image = Resources.Exit;
-                menu.Items.Add(item);
-
-                return menu;
-            }
-
-            private void ToggleClick(object sender, EventArgs mouse)
-            {
-                lamp.Toggle();
-            }
-
-            private void AboutClick(object sender, EventArgs mouse)
-            {
-                //if (!isAboutLoaded)
-                //{
-                //    isAboutLoaded = true;
-                //    new AboutBox().ShowDialog();
-                //    isAboutLoaded = false;
-                //}
-            }
-            private void ExitClick(object sender, EventArgs mouse)
-            {
-                // Quit without further ado.
-                Application.Exit();
-            }
-        }
     }
 }
