@@ -11,6 +11,13 @@ using SysTrayControls;
 
 namespace bb_SysTray
 {
+    public enum Status
+    {
+        On = 1,
+        Off = 0,
+        Unknown = -1
+    }
+
     public class Lamp
     {
         public bool isAvailable { get; set; }
@@ -23,19 +30,10 @@ namespace bb_SysTray
         }
     }
 
-
-    class SysTrayIcon : IDisposable
+    class Util
     {
-        private NotifyIcon ico { get; }
-        public static Lamp lamp { get; set; }
-        public enum Status
-        {
-            On = 1,
-            Off = 0,
-            Unknown = -1
-        }
         // networking communication
-        public Status getDeviceState()
+        public static Status getDeviceState()
         {
             String url = @"http://192.168.86.222:8888";
 
@@ -43,20 +41,19 @@ namespace bb_SysTray
 
             if (response == "true")
             {
-                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
+                Console.WriteLine($"Response: {response}\nLamp state: {response}");
                 return Status.On;
             }
 
             if (response == "false")
             {
-                Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
+                Console.WriteLine($"Response: {response}\nLamp state: {response}");
                 return Status.Off;
             }
 
             return Status.Unknown;
         }
-
-        public void setDeviceState(bool state)
+        public static void setDeviceState(bool state)
         {
             string html = string.Empty;
             List<string> urls = new List<string>
@@ -64,18 +61,17 @@ namespace bb_SysTray
                 @"http://192.168.86.222:8888", // direct to iot device
                 @"http://192.168.86.21:3000/dev" // server endpoint to iot device
             };
-            string url = urls[0] + (lamp.state ? "/on" : "/off");
+            string url = urls[0] + (state ? "/on" : "/off");
 
             var response = HitEndpoint(url);
 
-            if (response.Length > 1)
-            {
-            }
+            //if (response.Length > 1)
+            //{
+            //}
 
-            Console.WriteLine($"Response: {response}\nLamp state: {lamp.state}");
+            Console.WriteLine($"Response: {response}\nLamp state: {response}");
         }
-
-        private String HitEndpoint(string url)
+        public static String HitEndpoint(string url)
         {
             try
             {
@@ -101,11 +97,17 @@ namespace bb_SysTray
 
             return "";
         }
+    }
 
+
+    class SysTrayIcon : IDisposable
+    {
+        private NotifyIcon ico { get; }
+        public static Lamp lamp { get; set; }
         public SysTrayIcon()
         {
             lamp = new Lamp();
-            var _lamp_state = (int) (getDeviceState());
+            var _lamp_state = (int) (Util.getDeviceState());
             if (_lamp_state == -1)
             {
                 Console.WriteLine("Remote device is offline...");
@@ -123,23 +125,48 @@ namespace bb_SysTray
             setIcon();
             ico.ContextMenuStrip = CreateContext();
         }
-
-        
         private void ToggleState()
         {
-
-            setDeviceState(lamp.state);
+            Util.setDeviceState(lamp.state);
             ico.Icon = setIcon();
         }
-
+        private void ToggleState(object sender, EventArgs e)
+        {
+            ToggleState();
+        }
         // set icon
         private Icon setIcon()
         {
             var icon = lamp.state
-                ? "C:\\Users\\Mr.BiggyBear\\source\\repos\\InANutshell_8\\SysTrayControls\\Resources\\lamp_on.ico"
-                : "C:\\Users\\Mr.BiggyBear\\source\\repos\\InANutshell_8\\SysTrayControls\\Resources\\lamp_off.ico";
+                ? "../../Resources/lamp_on.ico"
+                : "../../Resources/lamp_off.ico";
 
             return new Icon(icon);
+        }
+        // icon actions
+        private void IconRightclick(object sender, MouseEventArgs mouse)
+        {
+            var position = new Point(System.Windows.Forms.Control.MousePosition.X,
+                System.Windows.Forms.Control.MousePosition.X);
+
+            if (mouse.Button == MouseButtons.Right &&
+                !ico.ContextMenuStrip.Visible)
+            {
+
+                // new Point(20, 20) + mouse.Location;
+                ico.ContextMenuStrip.Show(position);
+            }
+            //else
+            //{
+            //    ico.ContextMenuStrip.Hide();
+            //}
+        }
+        private void IconDoubleClick(object sender, MouseEventArgs mouse)
+        {
+            if (mouse.Button == MouseButtons.Left)
+            {
+                ToggleState();
+            }
         }
         // create context menu
         public ContextMenuStrip CreateContext()
@@ -175,40 +202,7 @@ namespace bb_SysTray
             menu.Items.Add(item);
 
             return menu;
-        }
-
-        private void ToggleState(object sender, EventArgs e)
-        {
-            ToggleState();
-        }
-
-        // icon actions
-        private void IconRightclick(object sender, MouseEventArgs mouse)
-        {
-            var position = new Point(System.Windows.Forms.Control.MousePosition.X,
-                System.Windows.Forms.Control.MousePosition.X);
-
-            if (mouse.Button == MouseButtons.Right &&
-                !ico.ContextMenuStrip.Visible)
-            {
-
-                // new Point(20, 20) + mouse.Location;
-                ico.ContextMenuStrip.Show(position);
-            }
-            else
-            {
-                ico.ContextMenuStrip.Hide();
-            }
-        }
-
-        private void IconDoubleClick(object sender, MouseEventArgs mouse)
-        {
-            if (mouse.Button == MouseButtons.Left)
-            {
-                ToggleState();
-            }
-        }
-        // context actions
+        }// context actions
         private void AboutClick(object sender, EventArgs mouse)
         {
 
@@ -220,7 +214,6 @@ namespace bb_SysTray
             );
 
         }
-
         private void ExitClick(object sender, EventArgs mouse)
         {
             // Quit without further ado.
@@ -243,7 +236,6 @@ namespace bb_SysTray
         {
             // TODO release unmanaged resources here
         }
-
         protected virtual void Dispose(bool disposing)
         {
             ReleaseUnmanagedResources();
@@ -251,17 +243,14 @@ namespace bb_SysTray
             {
             }
         }
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         ~SysTrayIcon()
         {
             Dispose(false);
         }
-
     }
 }
